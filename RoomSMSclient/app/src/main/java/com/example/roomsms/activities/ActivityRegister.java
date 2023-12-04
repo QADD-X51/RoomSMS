@@ -62,13 +62,16 @@ public class ActivityRegister extends AppCompatActivity {
 
 
                 if(hubConnection.getConnectionState() == HubConnectionState.CONNECTED)
-                    Toast.makeText(ActivityRegister.this, "Sending Message", Toast.LENGTH_LONG).show();
+                {
+                    
                     hubConnection.send("RegisterUser", username, email, password);
                     hubConnection.on("ReceiveRegistrationResult", (message) -> {
-                                Toast.makeText(ActivityRegister.this, message, Toast.LENGTH_LONG).show();
-                            },String.class);
+                        Toast.makeText(ActivityRegister.this, message, Toast.LENGTH_LONG).show();
+                    },String.class);
 
                     hubConnection.stop();
+                }
+
             }
         });
     }
