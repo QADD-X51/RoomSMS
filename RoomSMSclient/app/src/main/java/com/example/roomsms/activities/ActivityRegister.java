@@ -44,6 +44,7 @@ public class ActivityRegister extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 onBackPressed();
+                finish();
             }
         });
 
@@ -53,16 +54,24 @@ public class ActivityRegister extends AppCompatActivity {
             public void onClick(View view) {
 
                 if(hubConnection.getConnectionState() == HubConnectionState.DISCONNECTED) {
-                    hubConnection.start().doOnError(throwable -> {
-                                Log.e("Connection:Start", "doInBackground > doOnError: ", throwable);
-                                //start fail , try again
-                                //note: the start function need try chach when we use this function
-                            })
-                            .doOnComplete(() -> {
-                                Log.i("Connection:Start", "doInBackground > doOnComplete.");
-                                //start complated
-                            })
-                            .blockingAwait();
+                    try {
+                        hubConnection.start().doOnError(throwable -> {
+                                    Log.e("Connection:Start", "doInBackground > doOnError: ", throwable);
+                                    //start fail , try again
+                                    //note: the start function need try chach when we use this function
+                                })
+                                .doOnComplete(() -> {
+                                    Log.i("Connection:Start", "doInBackground > doOnComplete.");
+                                    //start complated
+                                })
+                                .blockingAwait();
+                    }
+                    catch(Exception e){
+                        Toast.makeText(ActivityRegister.this, "Connection Timeout", Toast.LENGTH_LONG).show();
+                        Log.e("Connection:Start", "Connection Timeout");
+                        return;
+                    }
+
                 }
 
                 String username = usernameBox.getText().toString();
@@ -80,6 +89,7 @@ public class ActivityRegister extends AppCompatActivity {
                     hubConnection.stop();
                 }
 
+                Toast.makeText(ActivityRegister.this, "Connection Error", Toast.LENGTH_LONG).show();
                 hubConnection.stop();
             }
         });

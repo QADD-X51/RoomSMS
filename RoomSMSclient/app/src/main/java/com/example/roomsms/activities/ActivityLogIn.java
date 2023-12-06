@@ -36,9 +36,24 @@ public class ActivityLogIn extends AppCompatActivity {
                 openRegisterActivity();
             }
         });
+
+        logInButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                openMainActivity();
+            }
+        });
     }
 
     public void openRegisterActivity(){
         startActivity(new Intent(this, ActivityRegister.class));
+    }
+
+    public void openMainActivity() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("UserId", 5);
+        startActivity(intent);
+        finish();
     }
 }

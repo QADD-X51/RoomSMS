@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">RoomSMS</string>
+    <string name="userLabel">"User: "</string>
+    <string name="sample_text">Sample Text</string>
+    <string name="create_room">Create Room</string>
+    <string name="owner">"Owner: "</string>
 </resources>
