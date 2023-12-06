@@ -73,7 +73,7 @@ public class ActivityRegister extends AppCompatActivity {
                 if(hubConnection.getConnectionState() == HubConnectionState.CONNECTED)
                 {
 
-                    String result = hubConnection.invoke(String.class,"RegisterUser", username, email, password).toString();
+                    String result = hubConnection.invoke(String.class,"RegisterUser", username, email, password).blockingGet();
                     Toast.makeText(ActivityRegister.this, result, Toast.LENGTH_LONG).show();
                     Log.i("Connection:Received", result);
 
