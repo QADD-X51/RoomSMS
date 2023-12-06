@@ -1,10 +1,13 @@
 using RoomSMSserver.Hubs;
+using Microsoft.EntityFrameworkCore;
+using RoomSMSserver.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorPages();
+//builder.Services.AddRazorPages();
 builder.Services.AddSignalR();
+builder.Services.AddScoped<IUserAuthorizationService, UserAuthorizationService>();
 
 var app = builder.Build();
 
