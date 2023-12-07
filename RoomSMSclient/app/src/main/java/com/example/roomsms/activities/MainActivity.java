@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
         roomsArray.add(new RoomModel("Common Room", "Relu Dorelu"));
         roomsArray.add(new RoomModel("Last Room", "Eu Nutu"));
 
-
         userId = extras.getInt("UserId");
 
         roomsList = findViewById(R.id.RoomsList);
@@ -70,11 +69,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Toast.makeText(MainActivity.this, "Entering room: " + roomsArray.get(i).GetName(), Toast.LENGTH_SHORT).show();
+                openChatActivity(roomsArray.get(i));
             }
         });
 
         adapter = new RoomsListViewAdapter(getApplicationContext(), roomsArray);
         roomsList.setAdapter(adapter);
 
+    }
+
+    public void openChatActivity(RoomModel room) {
+        Intent intent = new Intent(this, ChatActivity.class);
+        intent.putExtra("UserId", userId);
+        intent.putExtra("Room", room.GetName());
+        startActivity(intent);
     }
 }
