@@ -20,4 +20,9 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Database\Entities\" />
+    <Folder Include="Database\CRUDs\" />
+  </ItemGroup>
+
 </Project>
