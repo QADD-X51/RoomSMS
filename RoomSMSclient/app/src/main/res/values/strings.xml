@@ -5,4 +5,10 @@
     <string name="create_room">Create Room</string>
     <string name="owner">"Owner: "</string>
     <string name="members">"Members: "</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="dialog_leave_room_title">Leave Room</string>
+    <string name="dialog_leave_room_message">If you leave this room, you will have to be invited again to access it. Are you sure you want to leave the room?</string>
+    <string name="dialog_delete_room_title">Delete Room</string>
+    <string name="dialog_delete_room_message">If you delete the room, you and every other members will lose access to all the messages sent. This action is irreversible. Are you sure you want to delete the room?</string>
 </resources>
