@@ -10,4 +10,5 @@
     <color name="gray_51">#FF333333</color>
     <color name="gray_151">#FF979797</color>
     <color name ="super_light_purple">#EFE6FF</color>
+    <color name="full_transparent">#00000000</color>
 </resources>

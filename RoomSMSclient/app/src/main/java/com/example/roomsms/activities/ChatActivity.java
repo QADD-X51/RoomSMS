@@ -25,6 +25,7 @@ public class ChatActivity extends AppCompatActivity {
     TextView membersCountLabel;
     EditText messageBox;
     ImageView sendMessageButton;
+    ImageView settingsButton;
     ArrayList<ChatModel> chatArray;
     ChatListViewAdapter adapter;
     int userId;
@@ -51,6 +52,7 @@ public class ChatActivity extends AppCompatActivity {
         membersCountLabel = findViewById(R.id.MembersCount);
         messageBox = findViewById(R.id.ChatBox);
         sendMessageButton = findViewById(R.id.SendTextButton);
+        settingsButton = findViewById(R.id.ChatSettingsButton);
         chatList = findViewById(R.id.ChatList);
 
         roomNameLabel.setText(roomName);
@@ -91,10 +93,25 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openSettingsActivity();
+            }
+        });
+
     }
 
     private void addChatMessage(String message) {
         chatArray.add(new ChatModel(message, userId, Calendar.getInstance().getTime()));
         chatList.setAdapter(adapter);
+    }
+
+    private void openSettingsActivity()
+    {
+        Intent intent = new Intent(this, ChatSettingsActivity.class);
+        intent.putExtra("Room", roomName);
+        intent.putExtra("Role", "Owner");
+        startActivity(intent);
     }
 }
