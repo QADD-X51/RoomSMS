@@ -16,6 +16,9 @@
         android:theme="@style/Theme.RoomSMS"
         tools:targetApi="31">
         <activity
+            android:name=".activities.ManageUsersActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.ChatSettingsActivity"
             android:exported="false" />
         <activity
