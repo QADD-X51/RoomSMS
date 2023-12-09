@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="350dp"
-    android:layout_height="match_parent"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:paddingTop="15dp"
+    android:paddingBottom="15dp"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <TextView
@@ -12,7 +16,6 @@
         android:textSize="23sp"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
-        android:paddingTop="10dp"
         />
 
     <TextView
@@ -20,10 +23,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="18sp"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
+        android:paddingStart="30dp"
+        android:paddingEnd="30dp"
         android:paddingTop="20dp"
-        android:text="This is a longer text. The reason for this prolonged paragraph is to see how the text behaves on multiple lines."/>
+        android:text="@string/sample_text"/>
+
+    <EditText
+        android:id="@+id/DialogEditText"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
     <LinearLayout
         android:weightSum="20"
@@ -32,33 +43,21 @@
         android:paddingTop="20dp">
 
         <Space
+            android:layout_weight="14"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"/>
+
+
+        <Button
+            android:id="@+id/AddButton"
+            android:layout_weight="0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add"/>
+        <Space
             android:layout_weight="6"
             android:layout_width="0dp"
             android:layout_height="wrap_content"/>
-
-        <Button
-            android:id="@+id/NoButton"
-            android:layout_weight="5"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/no"/>
-
-        <Space
-            android:layout_weight="2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"/>
-
-        <Button
-            android:id="@+id/YesButton"
-            android:layout_weight="5"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/yes"/>
-        <Space
-            android:layout_weight="2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"/>
-
 
     </LinearLayout>
 
