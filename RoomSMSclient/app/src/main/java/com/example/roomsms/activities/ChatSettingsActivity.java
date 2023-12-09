@@ -10,7 +10,6 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,7 +46,7 @@ public class ChatSettingsActivity extends AppCompatActivity {
         settingsArray = new ArrayList<String>();
 
         if(!Objects.equals(role, "Normal"))  settingsArray.add("Add User To Room");
-        if(!Objects.equals(role, "Normal")) settingsArray.add("Manage Users");
+        if(Objects.equals(role, "Owner")) settingsArray.add("Manage Users");
         if(!Objects.equals(role, "Normal")) settingsArray.add("Change Room Name");
         if(Objects.equals(role, "Owner"))
             settingsArray.add("Delete Room");
@@ -63,12 +62,10 @@ public class ChatSettingsActivity extends AppCompatActivity {
                 switch(settingsArray.get(i))
                 {
                     case "Add User To Room":
-                        showAddUserDialog();
                         break;
                     case "Manage Users":
                         break;
                     case "Change Room Name":
-                        showChangeRoomNameDialog();
                         break;
                     case "Leave Room":
                         showLeaveRoomDialog();
@@ -89,10 +86,10 @@ public class ChatSettingsActivity extends AppCompatActivity {
         dialog.setCancelable(true);
         dialog.setContentView(R.layout.dialog_are_you_sure);
 
-        TextView title = dialog.findViewById(R.id.DialogTitle);
-        TextView message = dialog.findViewById(R.id.DialogMessage);
-        Button noButton = dialog.findViewById(R.id.NoButton);
-        Button yesButton = dialog.findViewById(R.id.YesButton);
+        TextView title = findViewById(R.id.DialogTitle);
+        TextView message = findViewById(R.id.DialogMessage);
+        Button noButton = findViewById(R.id.NoButton);
+        Button yesButton = findViewById(R.id.YesButton);
 
         title.setText(getResources().getString(R.string.dialog_leave_room_title));
         message.setText(getResources().getString((R.string.dialog_leave_room_message)));
@@ -145,60 +142,6 @@ public class ChatSettingsActivity extends AppCompatActivity {
                 Toast.makeText(ChatSettingsActivity.this, "Deleted Room", Toast.LENGTH_LONG).show();
                 dialog.cancel();
                 goBackToMainActivity();
-            }
-        });
-
-        dialog.show();
-    }
-
-    private void showAddUserDialog() {
-        Dialog dialog = new Dialog(ChatSettingsActivity.this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(true);
-        dialog.setContentView(R.layout.dialog_add_new);
-
-        TextView title = dialog.findViewById(R.id.DialogTitle);
-        TextView message = dialog.findViewById(R.id.DialogMessage);
-        Button addButton = dialog.findViewById(R.id.AddButton);
-        EditText editText = dialog.findViewById(R.id.DialogEditText);
-
-        title.setText(getResources().getString(R.string.dialog_add_user_title));
-        message.setText(getResources().getString(R.string.dialog_add_user_message));
-
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Make it do stuff
-                Toast.makeText(ChatSettingsActivity.this, "Added User:  " + editText.getText().toString(), Toast.LENGTH_LONG).show();
-                dialog.cancel();
-            }
-        });
-
-        dialog.show();
-    }
-
-    private void showChangeRoomNameDialog() {
-
-        Dialog dialog = new Dialog(ChatSettingsActivity.this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(true);
-        dialog.setContentView(R.layout.dialog_add_new);
-
-        TextView title = dialog.findViewById(R.id.DialogTitle);
-        TextView message = dialog.findViewById(R.id.DialogMessage);
-        Button confirmButton = dialog.findViewById(R.id.AddButton);
-        EditText editText = dialog.findViewById(R.id.DialogEditText);
-
-        title.setText(getResources().getString(R.string.dialog_change_room_name_title));
-        message.setText(getResources().getString(R.string.dialog_change_room_name_message));
-        confirmButton.setText(getResources().getString(R.string.change));
-
-        confirmButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Make it do stuff
-                Toast.makeText(ChatSettingsActivity.this, "Renamed Room To:  " + editText.getText().toString(), Toast.LENGTH_LONG).show();
-                dialog.cancel();
             }
         });
 

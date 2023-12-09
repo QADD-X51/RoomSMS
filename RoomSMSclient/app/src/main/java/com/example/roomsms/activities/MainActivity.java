@@ -3,15 +3,11 @@ package com.example.roomsms.activities;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,7 +22,6 @@ public class MainActivity extends AppCompatActivity {
     TextView userLabel;
     ArrayList<RoomModel> roomsArray;
     RoomsListViewAdapter adapter;
-    Button createRoomButton;
     int userId;
 
     @Override
@@ -67,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
 
         roomsList = findViewById(R.id.RoomsList);
         userLabel = findViewById(R.id.UserLabel);
-        createRoomButton = findViewById(R.id.CreateRoomButton);
 
         userLabel.setText(String.valueOf(userId));
 
@@ -82,42 +76,9 @@ public class MainActivity extends AppCompatActivity {
         adapter = new RoomsListViewAdapter(getApplicationContext(), roomsArray);
         roomsList.setAdapter(adapter);
 
-        createRoomButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showCreateRoomDialog();
-            }
-        });
-
     }
 
-    private void showCreateRoomDialog() {
-        Dialog dialog = new Dialog(MainActivity.this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(true);
-        dialog.setContentView(R.layout.dialog_add_new);
-
-        TextView title = dialog.findViewById(R.id.DialogTitle);
-        TextView message = dialog.findViewById(R.id.DialogMessage);
-        Button addButton = dialog.findViewById(R.id.AddButton);
-        EditText editText = dialog.findViewById(R.id.DialogEditText);
-
-        title.setText(getResources().getString(R.string.dialog_add_room_title));
-        message.setText(getResources().getString(R.string.dialog_add_room_message));
-
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Make it do stuff
-                Toast.makeText(MainActivity.this, "Room Added:  " + editText.getText().toString(), Toast.LENGTH_LONG).show();
-                dialog.cancel();
-            }
-        });
-
-        dialog.show();
-    }
-
-    private void openChatActivity(RoomModel room) {
+    public void openChatActivity(RoomModel room) {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("UserId", userId);
         intent.putExtra("Room", room.GetName());

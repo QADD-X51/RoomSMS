@@ -111,7 +111,7 @@ public class ChatActivity extends AppCompatActivity {
     {
         Intent intent = new Intent(this, ChatSettingsActivity.class);
         intent.putExtra("Room", roomName);
-        intent.putExtra("Role", "Admin");
+        intent.putExtra("Role", "Owner");
         startActivity(intent);
     }
 }
