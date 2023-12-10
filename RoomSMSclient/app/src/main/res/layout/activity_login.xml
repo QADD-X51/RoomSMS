@@ -3,13 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/carbon"
     android:padding="28dp">
 
     <EditText
         android:id="@+id/Email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Email"
+        android:hint="@string/email"
         android:layout_marginBottom="10dp">
     </EditText>
 
@@ -18,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="70dp"
-        android:hint="Password">
+        android:hint="@string/password">
     </EditText>
 
     <LinearLayout
@@ -32,7 +33,7 @@
             android:id="@+id/LogInButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:text="Log In"
+            android:text="@string/log_in"
             android:layout_weight="6">
 
         </Button>
@@ -46,7 +47,7 @@
             android:id="@+id/RegisterButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:text="Sign Up"
+            android:text="@string/sign_up"
             android:layout_weight="6">
 
         </Button>
