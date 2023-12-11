@@ -28,5 +28,16 @@ namespace RoomSMSserver.Database.CRUDs
             dbContext.Entry(rooms.SingleOrDefault(x => x.Id == id)).CurrentValues.SetValues(updatedRoom);
             dbContext.SaveChanges();
         }
+        public string GetRoomName(int id)
+        {
+            var rooms = dbContext.Rooms;
+            Room foundRoom = rooms.SingleOrDefault(x => x.Id == id && x.IsDeleted == false);
+            return foundRoom != null ? foundRoom.Name : "";
+        }
+        public Room GetRoomById(int id)
+        {
+            List<Room> rooms = dbContext.Rooms.ToList();
+            return rooms.SingleOrDefault(x => x.Id == id && x.IsDeleted == false);
+        }
     }
 }

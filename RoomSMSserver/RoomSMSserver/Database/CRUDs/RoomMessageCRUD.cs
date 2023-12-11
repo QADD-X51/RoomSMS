@@ -28,5 +28,11 @@ namespace RoomSMSserver.Database.CRUDs
             dbContext.Entry(roomMessages.SingleOrDefault(x => x.Id == id)).CurrentValues.SetValues(updatedRoomMessage);
             dbContext.SaveChanges();
         }
+        public List<RoomMessage> GetAllRoomMessages(int idRoom)
+        {
+            var roomMessages = dbContext.RoomMessages;
+            List<RoomMessage> messages = roomMessages.Where(x => x.IdRoom == idRoom && x.IsDeleted == false).ToList();
+            return messages;
+        }
     }
 }

@@ -31,7 +31,7 @@ app.MapRazorPages();
 
 app.UseEndpoints(endpoints =>
 {
-    endpoints.MapHub<RegisterUserHub>("/register");
+    endpoints.MapHub<AppHub>("/app");
 });
 
 app.Run();

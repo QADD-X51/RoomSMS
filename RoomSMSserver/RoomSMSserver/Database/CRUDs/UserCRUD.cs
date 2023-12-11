@@ -33,17 +33,29 @@ namespace RoomSMSserver.Database.CRUDs
             List<User> users = dbContext.Users.ToList();
             return users.FindAll(x => x.IsDeleted == false).Select(x => x.Email).ToList();
         }
-        public User GetUserByUsername(string email)
+        public User GetUserByEmail(string email)
         {
             List<User> users = dbContext.Users.ToList();
-            return users.SingleOrDefault(x => x.Email == email);
+            return users.SingleOrDefault(x => x.Email == email && x.IsDeleted == false);
         }
+
+        public User GetUserById(int id)
+        {
+            List<User> users = dbContext.Users.ToList();
+            return users.SingleOrDefault(x => x.Id == id && x.IsDeleted == false);
+        }
+
         public void ChangePassword(string email, string hashedNewPassword)
         {
             var users = dbContext.Users;
-            User updatedUser = users.SingleOrDefault(x => x.Email == email);
+            User updatedUser = users.SingleOrDefault(x => x.Email == email && x.IsDeleted == false);
+            if(updatedUser == null)
+            {
+                return;
+            }
             updatedUser.Password = hashedNewPassword;
-            dbContext.Entry(users.SingleOrDefault(x => x.Email == email)).CurrentValues.SetValues(updatedUser);
+            dbContext.Entry(users.SingleOrDefault(x => x.Email == email && x.IsDeleted == false))
+                .CurrentValues.SetValues(updatedUser);
             dbContext.SaveChanges();
         }
     }
