@@ -1,5 +1,5 @@
 package com.example.roomsms.activities;
-import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,6 +13,11 @@ import com.microsoft.signalr.HubConnection;
 import com.microsoft.signalr.HubConnectionBuilder;
 import com.microsoft.signalr.HubConnectionState;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.regex.Pattern;
+
 public class ActivityRegister extends AppCompatActivity {
 
     EditText usernameBox;
@@ -22,7 +27,7 @@ public class ActivityRegister extends AppCompatActivity {
     Button backButton;
     Button registerButton;
 
-    HubConnection hubConnection;
+    HubConnector hubConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +43,7 @@ public class ActivityRegister extends AppCompatActivity {
         backButton = findViewById(R.id.BackButton);
         registerButton = findViewById(R.id.RegisterButton);
 
-        hubConnection = HubConnectionBuilder.create("http://10.0.2.2:5190/register").build();
+        hubConnection = new HubConnector("/app");
 
         backButton.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -53,46 +58,86 @@ public class ActivityRegister extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                if(hubConnection.getConnectionState() == HubConnectionState.DISCONNECTED) {
-                    try {
-                        hubConnection.start().doOnError(throwable -> {
-                                    Log.e("Connection:Start", "doInBackground > doOnError: ", throwable);
-                                    //start fail , try again
-                                    //note: the start function need try chach when we use this function
-                                })
-                                .doOnComplete(() -> {
-                                    Log.i("Connection:Start", "doInBackground > doOnComplete.");
-                                    //start complated
-                                })
-                                .blockingAwait();
-                    }
-                    catch(Exception e){
-                        Toast.makeText(ActivityRegister.this, "Connection Timeout", Toast.LENGTH_LONG).show();
-                        Log.e("Connection:Start", "Connection Timeout");
-                        return;
-                    }
-
-                }
-
-                String username = usernameBox.getText().toString();
                 String email = emailBox.getText().toString();
                 String password = passwordBox.getText().toString();
                 String repassword = rePasswordBox.getText().toString();
+                String username = usernameBox.getText().toString();
 
-                if(hubConnection.getConnectionState() == HubConnectionState.CONNECTED)
-                {
-
-                    String result = hubConnection.invoke(String.class,"RegisterUser", username, email, password).blockingGet();
-                    Toast.makeText(ActivityRegister.this, result, Toast.LENGTH_LONG).show();
-                    Log.i("Connection:Received", result);
-
-                    hubConnection.stop();
+                if(!password.equals(repassword)) {
+                    Toast.makeText(ActivityRegister.this, "The passwords do not match.", Toast.LENGTH_LONG).show();
+                    return;
                 }
 
-                Toast.makeText(ActivityRegister.this, "Connection Error", Toast.LENGTH_LONG).show();
-                hubConnection.stop();
+                if(password.isEmpty() || Utils.IsBlankString(password)) {
+                    Toast.makeText(ActivityRegister.this, "Password can not be blank.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                if(username.isEmpty() || Utils.IsBlankString(username)) {
+                    Toast.makeText(ActivityRegister.this, "Username can not be blank.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                if(!Pattern.compile("^[_a-zA-z0-9-.]+@[a-zA-z0-9]+\\.[a-zA-z]+$").matcher(email).matches()) {
+                    Toast.makeText(ActivityRegister.this, "Please type a valid email.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                ExecutorService service = Executors.newSingleThreadExecutor();
+
+                Runnable function = () -> {
+
+                    if(!hubConnection.start()) {
+                        Log.e("Connection:Start", "Connection Timeout");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                makeToast("Connection Timeout");
+                            }
+                        });
+                        return;
+                    }
+
+                    if(hubConnection.isConnected())
+                    {
+
+                        String result = hubConnection.getHubConnection().invoke(String.class,"RegisterUser", username, email, password).blockingGet();
+                        //makeToast(result);
+                        Log.i("Connection:Received", result);
+
+                        hubConnection.stop();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(result.equals("Ok")) {
+                                    makeToast("Account created!");
+                                    return;
+                                }
+                                makeToast(result);
+                            }
+                        });
+                        return;
+                    }
+
+                    hubConnection.stop();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            makeToast("Connection Error");
+                        }
+                    });
+
+                };
+
+                service.execute(function);
+
+
             }
         });
+    }
+
+    public void makeToast(String message) {
+        Toast.makeText(ActivityRegister.this, message, Toast.LENGTH_LONG).show();
     }
 
 }
