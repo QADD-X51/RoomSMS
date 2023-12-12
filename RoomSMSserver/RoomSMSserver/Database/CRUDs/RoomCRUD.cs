@@ -2,17 +2,18 @@
 
 namespace RoomSMSserver.Database.CRUDs
 {
-    public class RoomCRUD : ICRUD<Room, int>
+    public class RoomCRUD
     {
         ProiectPdmContext dbContext;
         public RoomCRUD(ProiectPdmContext dbContext)
         {
             this.dbContext = dbContext;
         }
-        public void Add(Room addedRoom)
+        public int Add(Room addedRoom)
         {
             dbContext.Rooms.Add(addedRoom);
             dbContext.SaveChanges();
+            return addedRoom.Id;
         }
         public void Update(int id, Room updatedRoom)
         {

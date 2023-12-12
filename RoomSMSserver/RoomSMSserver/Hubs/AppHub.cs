@@ -18,9 +18,8 @@ namespace RoomSMSserver.Hubs
     {
         private ProiectPdmContext dbContext;
         private IUserAuthorizationService _authorization;
-        private static ConcurrentBag<string> loggedUsers = new ConcurrentBag<string>();
 
-        public AppHub(IUserAuthorizationService authorization,ProiectPdmContext dbContext)
+        public AppHub(IUserAuthorizationService authorization, ProiectPdmContext dbContext)
         {
             this._authorization = authorization;
             this.dbContext = dbContext;
@@ -29,12 +28,12 @@ namespace RoomSMSserver.Hubs
         public async Task<string> RegisterUser(string username, string email, string password)
         {
             UserCRUD userCRUD = new UserCRUD(dbContext);
-            if(username == null || email == null || password == null)
+            if (username == null || email == null || password == null)
             {
                 return "Null field received";
             }
             List<string> userEmails = userCRUD.GetAllUsersEmails();
-            if(userEmails.Any(s => s == email))
+            if (userEmails.Any(s => s == email))
             {
                 return "Email already exists";
             }
@@ -52,28 +51,20 @@ namespace RoomSMSserver.Hubs
         public async Task<StringIntegerModel> Login(string email, string password)
         {
             UserCRUD userCRUD = new UserCRUD(dbContext);
-            if(email == null || password == null)
+            if (email == null || password == null)
             {
-                return new StringIntegerModel() {String="No", Integer = -1 };
+                return new StringIntegerModel() { String = "No", Integer = -1 };
             }
             var foundUser = userCRUD.GetUserByEmail(email);
-            if(foundUser == null)
+            if (foundUser == null)
             {
                 return new StringIntegerModel() { String = "No", Integer = -1 }; ;
             }
             var samePassword = _authorization.VerifyHashedPassword(foundUser.Password, password);
-            if(!samePassword)
+            if (!samePassword)
             {
                 return new StringIntegerModel() { String = "No", Integer = -1 }; ;
             }
-            /*
-            bool loggedIn = loggedUsers.Any(u => u == email);
-            if(loggedIn)
-            {
-                return new StringIntegerModel() { String = "No", Integer = -1 }; ;
-            }
-            loggedUsers.Add(email);
-            */
             await Task.CompletedTask;
             return new StringIntegerModel() { String = "Ok", Integer = foundUser.Id };
         }
@@ -81,7 +72,7 @@ namespace RoomSMSserver.Hubs
         {
             UserCRUD userCRUD = new UserCRUD(dbContext);
             var foundUser = userCRUD.GetUserById(id);
-            if(foundUser == null)
+            if (foundUser == null)
             {
                 return "";
             }
@@ -92,6 +83,7 @@ namespace RoomSMSserver.Hubs
         {
             UserCRUD userCRUD = new UserCRUD(dbContext);
             RoomCRUD roomCrud = new RoomCRUD(dbContext);
+            MemberCRUD memberCRUD = new MemberCRUD(dbContext);
             var foundUser = userCRUD.GetUserById(id);
             if (foundUser == null)
             {
@@ -102,7 +94,13 @@ namespace RoomSMSserver.Hubs
                 Name = roomName,
                 IdOwner = id
             };
-            roomCrud.Add(roomToAdd);
+            var idRoom = roomCrud.Add(roomToAdd);
+            var memberToAdd = new Member
+            {
+                IdRoom = idRoom,
+                IdUser = foundUser.Id,
+                Role = Roles.Owner.ToString()
+            };
             await Task.CompletedTask;
             return "Ok";
         }
@@ -113,17 +111,17 @@ namespace RoomSMSserver.Hubs
             MemberCRUD memberCRUD = new MemberCRUD(dbContext);
             List<int> roomIDs = memberCRUD.GetRoomIDsOfMember(memberId);
             RoomCRUD roomCRUD = new RoomCRUD(dbContext);
-            List<RoomInfoModel> roomInfos = roomIDs.Select(foundRoomId => 
-                new RoomInfoModel(foundRoomId,roomCRUD.GetRoomName(foundRoomId),ownerName)).ToList();
+            List<RoomInfoModel> roomInfos = roomIDs.Select(foundRoomId =>
+                new RoomInfoModel(foundRoomId, roomCRUD.GetRoomName(foundRoomId), ownerName)).ToList();
             Console.WriteLine("Room Count: " + roomInfos.Count.ToString());
             await Task.CompletedTask;
-            return roomInfos;     
+            return roomInfos;
         }
-        public async Task<(string,int)> GetRoomNameAndMembersCount(int roomId)
+        public async Task<(string, int)> GetRoomNameAndMembersCount(int roomId)
         {
             RoomCRUD roomCRUD = new RoomCRUD(dbContext);
             var foundRoom = roomCRUD.GetRoomById(roomId);
-            if(foundRoom == null)
+            if (foundRoom == null)
             {
                 return ("", 0);
             }
@@ -136,10 +134,10 @@ namespace RoomSMSserver.Hubs
         {
             RoomCRUD roomCRUD = new RoomCRUD(dbContext);
             UserCRUD userCRUD = new UserCRUD(dbContext);
-            RoomMessageCRUD roomMessageCRUD= new RoomMessageCRUD(dbContext);
+            RoomMessageCRUD roomMessageCRUD = new RoomMessageCRUD(dbContext);
             List<MessageModel> messages = new List<MessageModel>();
             var foundRoom = roomCRUD.GetRoomById(roomId);
-            if(foundRoom == null)
+            if (foundRoom == null)
             {
                 return messages;
             }
@@ -151,7 +149,7 @@ namespace RoomSMSserver.Hubs
             await Task.CompletedTask;
             return messages;
         }
-        public async Task<string> SendMessage(int idUser,int idRoom, string message)
+        public async Task<string> SendMessage(int idUser, int idRoom, string message)
         {
             RoomCRUD roomCRUD = new RoomCRUD(dbContext);
             UserCRUD userCRUD = new UserCRUD(dbContext);
@@ -166,7 +164,7 @@ namespace RoomSMSserver.Hubs
             {
                 return "No";
             }
-            if(message == string.Empty)
+            if (message == string.Empty)
             {
                 return "No";
             }
@@ -178,7 +176,8 @@ namespace RoomSMSserver.Hubs
                 Date = DateTime.Now
             };
             roomMessageCRUD.Add(messageToAdd);
-            await Task.CompletedTask;
+            var messageToSend = new MessageModel(message, userCRUD.GetUserById(idUser).Username, messageToAdd.Date);
+            await Clients.All.SendAsync("SendMessageToClients", idRoom, messageToSend);
             return "Ok";
         }
         public async Task<string> RemoveMemberFromRoom(int idUser, int idRoom)
@@ -196,8 +195,8 @@ namespace RoomSMSserver.Hubs
             {
                 return "No";
             }
-            var memberId = memberCRUD.GetMemberId(idUser,idRoom);
-            if(memberId == -1)
+            var memberId = memberCRUD.GetMemberId(idUser, idRoom);
+            if (memberId == -1)
             {
                 return "No";
             }
@@ -233,7 +232,7 @@ namespace RoomSMSserver.Hubs
                 return "No";
             }
             var foundMemberId = memberCRUD.GetMemberId(foundUser.Id, foundRoom.Id);
-            if(foundMemberId != -1)
+            if (foundMemberId != -1)
             {
                 return "No";
             }
@@ -247,7 +246,7 @@ namespace RoomSMSserver.Hubs
             await Task.CompletedTask;
             return "Ok";
         }
-        public async Task<string> ChangeRoomName(int idRoom,string newRoomName)
+        public async Task<string> ChangeRoomName(int idRoom, string newRoomName)
         {
             RoomCRUD roomCRUD = new RoomCRUD(dbContext);
             var foundRoom = roomCRUD.GetRoomById(idRoom);
@@ -277,7 +276,7 @@ namespace RoomSMSserver.Hubs
             await Task.CompletedTask;
             return memberInfos;
         }
-        public async Task<string> ChangeMemberRole(int idUser,int idRoom)
+        public async Task<string> ChangeMemberRole(int idUser, int idRoom)
         {
             RoomCRUD roomCRUD = new RoomCRUD(dbContext);
             UserCRUD userCRUD = new UserCRUD(dbContext);

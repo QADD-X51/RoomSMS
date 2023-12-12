@@ -103,7 +103,7 @@ GO
 USE [ProiectPDM]
 GO
 
-/****** Object:  Table [dbo].[RoomMessage]    Script Date: 12/7/2023 11:43:24 AM ******/
+/****** Object:  Table [dbo].[RoomMessage]    Script Date: 12/12/2023 2:21:51 PM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -115,7 +115,7 @@ CREATE TABLE [dbo].[RoomMessage](
 	[Message] [nvarchar](500) NOT NULL,
 	[IdUser] [int] NOT NULL,
 	[IdRoom] [int] NOT NULL,
-	[Date] [date] NOT NULL,
+	[Date] [datetime] NOT NULL,
 	[IsDeleted] [bit] NOT NULL,
  CONSTRAINT [PK_RoomMessage] PRIMARY KEY CLUSTERED 
 (
@@ -140,5 +140,6 @@ GO
 
 ALTER TABLE [dbo].[RoomMessage] CHECK CONSTRAINT [FK_IdUser_IdUserRoomMessage]
 GO
+
 
 
