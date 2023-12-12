@@ -1,5 +1,4 @@
 package com.example.roomsms.activities;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -89,12 +88,7 @@ public class ActivityRegister extends AppCompatActivity {
 
                     if(!hubConnection.start()) {
                         Log.e("Connection:Start", "Connection Timeout");
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                makeToast("Connection Timeout");
-                            }
-                        });
+                        runOnUiThread(() -> makeToast("Connection Timeout"));
                         return;
                     }
 
@@ -106,15 +100,12 @@ public class ActivityRegister extends AppCompatActivity {
                         Log.i("Connection:Received", result);
 
                         hubConnection.stop();
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if(result.equals("Ok")) {
-                                    makeToast("Account created!");
-                                    return;
-                                }
-                                makeToast(result);
+                        runOnUiThread(() -> {
+                            if(result.equals("Ok")) {
+                                makeToast("Account created!");
+                                return;
                             }
+                            makeToast(result);
                         });
                         return;
                     }

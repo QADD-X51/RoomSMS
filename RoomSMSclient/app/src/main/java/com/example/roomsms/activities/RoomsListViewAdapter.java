@@ -36,19 +36,19 @@ public class RoomsListViewAdapter  extends ArrayAdapter<RoomModel> {
             convertView = layoutInflater.inflate(R.layout.rooms_list_row, null);
 
             TextView roomName = convertView.findViewById(R.id.RoomName);
-            roomName.setText(items.get(position).GetName());
+            roomName.setText(items.get(position).getName());
 
             TextView owner = convertView.findViewById(R.id.Owner);
-            owner.setText(items.get(position).GetOwner());
+            owner.setText(items.get(position).getOwner());
 
             return convertView;
         }
 
         TextView roomName = convertView.findViewById(R.id.RoomName);
-        roomName.setText(items.get(position).GetName());
+        roomName.setText(items.get(position).getName());
 
         TextView owner = convertView.findViewById(R.id.Owner);
-        owner.setText(items.get(position).GetOwner());
+        owner.setText(items.get(position).getOwner());
 
         return convertView;
     }

@@ -12,9 +12,13 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.roomsms.R;
+import com.google.gson.Gson;
 import com.microsoft.signalr.HubConnection;
 import com.microsoft.signalr.HubConnectionBuilder;
 
+import org.json.JSONObject;
+
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -76,17 +80,29 @@ public class ActivityLogIn extends AppCompatActivity {
                         if(hubConnection.isConnected()) {
                             Object resultObj = hubConnection.getHubConnection().invoke(Object.class,"Login", email, password).blockingGet();
 
-                            
+                            StringIntegerModel result = new Gson().fromJson(resultObj.toString(), StringIntegerModel.class);
+                            Log.i("Result", result.getString() + " - " + String.valueOf(result.getInteger()));
 
-                            Log.i("Result", resultObj.getClass().toString());
+
                             hubConnection.stop();
+                            runOnUiThread(() -> {
+                                if(Objects.equals(result.getString(), "No")) {
+                                    makeToast("Wrong Log In Credentials");
+                                    return;
+                                }
+                                openMainActivity(result.getInteger());
+                            });
+                            return;
                         }
 
                         hubConnection.stop();
+                        runOnUiThread(() -> {
+                            makeToast("Connection Error");
+                        });
                     }
                 });
 
-                //openMainActivity();
+                server.shutdown();
             }
         });
     }
@@ -95,9 +111,9 @@ public class ActivityLogIn extends AppCompatActivity {
         startActivity(new Intent(this, ActivityRegister.class));
     }
 
-    public void openMainActivity() {
+    public void openMainActivity(int userId) {
         Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("UserId", 5);
+        intent.putExtra("UserId", userId);
         startActivity(intent);
         finish();
     }
@@ -105,4 +121,6 @@ public class ActivityLogIn extends AppCompatActivity {
     public void makeToast(String message) {
         Toast.makeText(ActivityLogIn.this, message, Toast.LENGTH_LONG).show();
     }
+
+
 }

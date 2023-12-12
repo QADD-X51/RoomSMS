@@ -1,26 +1,33 @@
 package com.example.roomsms.activities;
 
 public class RoomModel {
-    private String owner;
-    private String name;
+    private int roomId;
+    private String roomName;
+    private String roomOwnerName;
 
     public RoomModel()
     {
-        this.owner = "None";
-        this.name = "None";
+        this.roomId = 0;
+        this.roomOwnerName = "None";
+        this.roomName = "None";
     }
 
     public RoomModel(String name, String owner)
     {
-        this.owner = owner;
-        this.name = name;
+        this.roomId = 0;
+        this.roomOwnerName = owner;
+        this.roomName = name;
     }
 
-    public String GetName(){
-        return name;
+    public String getName(){
+        return roomName;
     }
 
-    public String GetOwner(){
-        return owner;
+    public String getOwner(){
+        return roomOwnerName;
+    }
+
+    public int getId() {
+        return roomId;
     }
 }

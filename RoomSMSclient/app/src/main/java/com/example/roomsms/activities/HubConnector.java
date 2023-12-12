@@ -6,7 +6,9 @@ import com.microsoft.signalr.HubConnection;
 import com.microsoft.signalr.HubConnectionBuilder;
 import com.microsoft.signalr.HubConnectionState;
 
-public class HubConnector {
+import java.io.Serializable;
+
+public class HubConnector implements Serializable {
     private HubConnection hubConnection;
     public HubConnector(String add) {
         hubConnection = HubConnectionBuilder.create("http://10.0.2.2:5190" + add).build();
@@ -16,14 +18,14 @@ public class HubConnector {
         if (hubConnection.getConnectionState() == HubConnectionState.DISCONNECTED) {
             try {
                 hubConnection.start().doOnError(throwable -> {
-                            Log.e("Connection:Start", "doInBackground > doOnError: ", throwable);
+                            Log.e("HubConnector:Start", "doInBackground => doOnError: ", throwable);
                         })
                         .doOnComplete(() -> {
-                            Log.i("Connection:Start", "doInBackground > doOnComplete.");
+                            Log.i("HubConnector:Start", "Connection Started");
                         })
                         .blockingAwait();
             } catch (Exception e) {
-                Log.e("Connection:Start", "Connection Timeout");
+                Log.e("HubConnector:Start", "Connection Timeout");
                 return false;
             }
             return true;

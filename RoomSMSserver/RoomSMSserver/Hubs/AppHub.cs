@@ -49,31 +49,33 @@ namespace RoomSMSserver.Hubs
             return "Ok";
         }
 
-        public async Task<(string,int)> Login(string email, string password)
+        public async Task<StringIntegerModel> Login(string email, string password)
         {
             UserCRUD userCRUD = new UserCRUD(dbContext);
             if(email == null || password == null)
             {
-                return ("No", -1);
+                return new StringIntegerModel() {String="No", Integer = -1 };
             }
             var foundUser = userCRUD.GetUserByEmail(email);
             if(foundUser == null)
             {
-                return ("No", -1);
+                return new StringIntegerModel() { String = "No", Integer = -1 }; ;
             }
             var samePassword = _authorization.VerifyHashedPassword(foundUser.Password, password);
             if(!samePassword)
             {
-                return ("No", -1);
+                return new StringIntegerModel() { String = "No", Integer = -1 }; ;
             }
+            /*
             bool loggedIn = loggedUsers.Any(u => u == email);
             if(loggedIn)
             {
-                return ("No", -1);
+                return new StringIntegerModel() { String = "No", Integer = -1 }; ;
             }
             loggedUsers.Add(email);
+            */
             await Task.CompletedTask;
-            return ("Ok", foundUser.Id);
+            return new StringIntegerModel() { String = "Ok", Integer = foundUser.Id };
         }
         public async Task<string> GetUsernameById(int id)
         {
@@ -113,6 +115,7 @@ namespace RoomSMSserver.Hubs
             RoomCRUD roomCRUD = new RoomCRUD(dbContext);
             List<RoomInfoModel> roomInfos = roomIDs.Select(foundRoomId => 
                 new RoomInfoModel(foundRoomId,roomCRUD.GetRoomName(foundRoomId),ownerName)).ToList();
+            Console.WriteLine("Room Count: " + roomInfos.Count.ToString());
             await Task.CompletedTask;
             return roomInfos;     
         }
