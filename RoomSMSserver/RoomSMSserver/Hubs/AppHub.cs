@@ -101,6 +101,7 @@ namespace RoomSMSserver.Hubs
                 IdUser = foundUser.Id,
                 Role = Roles.Owner.ToString()
             };
+            memberCRUD.Add(memberToAdd);
             await Task.CompletedTask;
             return "Ok";
         }

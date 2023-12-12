@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -18,7 +19,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.roomsms.R;
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -37,6 +41,10 @@ public class MainActivity extends AppCompatActivity {
     Button createRoomButton;
     int userId;
     HubConnector hubConnection;
+
+    Handler handler;
+    Runnable refreshFunction;
+    final int delay = 30 * 1000; //Delay for 30 seconds.  One second = 1000 milliseconds.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
 
+        handler = new Handler();
+
         setContentView(R.layout.activity_main);
 
         roomsList = findViewById(R.id.RoomsList);
@@ -68,20 +78,22 @@ public class MainActivity extends AppCompatActivity {
         roomsArray = new ArrayList<RoomModel>();
 
         this.initialElementConnection();
-        this.updateList();
 
         userLabel.setText(String.valueOf(userId));
 
         roomsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Toast.makeText(MainActivity.this, "Entering room: " + roomsArray.get(i).getName(), Toast.LENGTH_SHORT).show();
+                if(hubConnection.isDisconnected()) {
+                    makeToast("You are not connected, please refresh");
+                    return;
+                }
                 openChatActivity(roomsArray.get(i));
             }
         });
 
-        adapter = new RoomsListViewAdapter(getApplicationContext(), roomsArray);
-        roomsList.setAdapter(adapter);
+
+        this.updateList();
 
         createRoomButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,10 +129,32 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.i("Main - onPause", "Paused");
+        hubConnection.stop();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        handler.postDelayed( refreshFunction = () -> {
+            Log.i("Main - Handler", "Called Handler");
+            refresh();
+            handler.postDelayed(refreshFunction, delay);
+        }, delay);
+
+        tryToConnect();
+        Log.i("Main - onResume", "Resumed");
+    }
+
     private void openChatActivity(RoomModel room) {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("UserId", userId);
         intent.putExtra("RoomId", room.getId());
+        intent.putExtra("RoomName", room.getName());
         startActivity(intent);
     }
 
@@ -156,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     if(result.equals("Ok")) {
                         makeToast("Room Was Added");
+                        updateList();
                         return;
                     }
                     makeToast("Could not add room");
@@ -166,6 +201,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         service.shutdown();
+
     }
 
     private void updateList() {
@@ -173,14 +209,22 @@ public class MainActivity extends AppCompatActivity {
 
         service.execute(() -> {
             if(hubConnection.isConnected()) {
-                Object result = Arrays.asList(hubConnection.getHubConnection().invoke(RoomModel[].class, "GetRoomsWithGivenMember", userId).blockingGet());
+                RoomModel @NonNull [] result = hubConnection.getHubConnection().invoke(RoomModel[].class, "GetRoomsWithGivenMember", userId).blockingGet();
 
-                Log.i("Main - Update List", result.getClass().toString());
-                //Log.i("Main - Update List", String.valueOf(result.size()));
-                //Log.i("Main - Update List", String.valueOf(result.length) + " - " + result[0].toString());
+                Log.i("Main - Update List", "Rooms got: " + String.valueOf(result.length));
+
+                ArrayList<RoomModel> rooms = new ArrayList<RoomModel>();
+
+
+                for (RoomModel o : result) {
+                    Log.i("Main - Update List", "Rooms added: " + o.getName());
+                    rooms.add(o);
+                }
 
                 runOnUiThread(() -> {
-
+                    roomsArray = rooms;
+                    adapter = new RoomsListViewAdapter(getApplicationContext(), roomsArray);
+                    roomsList.setAdapter(adapter);
                 });
                 return;
             }
@@ -188,6 +232,22 @@ public class MainActivity extends AppCompatActivity {
         });
 
         service.shutdown();
+    }
+
+    private boolean tryToConnect() {
+        if(!hubConnection.start()) {
+            Log.i("Main - onResume", "Connection Failed");
+            makeToast("Could not reconnect, please refresh");
+            return false;
+        }
+        return true;
+    }
+
+    private void refresh() {
+        if(!tryToConnect()) {
+            return;
+        }
+        updateList();
     }
 
     public void makeToast(String message) {

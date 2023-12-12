@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -17,6 +18,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -29,8 +33,9 @@ public class ChatActivity extends AppCompatActivity {
     ArrayList<ChatModel> chatArray;
     ChatListViewAdapter adapter;
     int userId;
-    String roomName;
-
+    RoomModel currentRoom;
+    String role;
+    HubConnector hubConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,14 +44,22 @@ public class ChatActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         if(extras == null)
         {
-            Toast.makeText(ChatActivity.this, "Something went wrong", Toast.LENGTH_LONG).show();
+            Log.e("Chat - onCreate","Bundles Failed");
             onBackPressed();  //this finishes the activity by itself
         }
 
         setContentView(R.layout.activity_chat);
 
+        hubConnection = new HubConnector("/app");
+        if(!hubConnection.start()) {
+            Log.e("Chat - onCreate","Failed to Connect");
+            onBackPressed();
+        }
+
         userId = extras.getInt("UserId");
-        roomName = extras.getString("Room");
+        currentRoom = new RoomModel();
+        currentRoom.setId(extras.getInt("RoomId"));
+        currentRoom.setName(extras.getString("RoomName"));
 
         roomNameLabel = findViewById(R.id.RoomName);
         membersCountLabel = findViewById(R.id.MembersCount);
@@ -55,25 +68,10 @@ public class ChatActivity extends AppCompatActivity {
         settingsButton = findViewById(R.id.ChatSettingsButton);
         chatList = findViewById(R.id.ChatList);
 
-        roomNameLabel.setText(roomName);
+        roomNameLabel.setText(currentRoom.getName());
         membersCountLabel.setText("2");
 
         chatArray = new ArrayList<ChatModel>();
-        switch(roomName){
-            case "New Room":
-                chatArray.add(new ChatModel("Hello there!", 51, new Date(100000000)));
-                chatArray.add(new ChatModel("Supp, m8?", 22, new Date(100010000)));
-                chatArray.add(new ChatModel("Not much...", 51, new Date(100025000)));
-                break;
-            case "Last Room":
-                chatArray.add(new ChatModel("Hello", 3, new Date(100340000)));
-                chatArray.add(new ChatModel("bye", 44, new Date(100350000)));
-                chatArray.add(new ChatModel(">:(", 3, new Date(100355000)));
-                break;
-
-            default:
-                chatArray.add(new ChatModel("Welcome to the room "+roomName+" !", 0, Calendar.getInstance().getTime()));
-        }
 
         adapter = new ChatListViewAdapter(getApplicationContext(), chatArray);
         chatList.setAdapter(adapter);
@@ -110,8 +108,20 @@ public class ChatActivity extends AppCompatActivity {
     private void openSettingsActivity()
     {
         Intent intent = new Intent(this, ChatSettingsActivity.class);
-        intent.putExtra("Room", roomName);
-        intent.putExtra("Role", "Admin");
+        intent.putExtra("RoomId", currentRoom.getId());
+        intent.putExtra("Role", role);
         startActivity(intent);
+    }
+
+    private void initialElementConnection() {
+        ExecutorService service = Executors.newSingleThreadExecutor();
+
+        service.execute(() -> {
+
+        });
+    }
+
+    private void makeToast(String string) {
+        Toast.makeText(ChatActivity.this, string, Toast.LENGTH_LONG).show();
     }
 }

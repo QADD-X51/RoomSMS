@@ -8,8 +8,8 @@ public class RoomModel {
     public RoomModel()
     {
         this.roomId = 0;
-        this.roomOwnerName = "None";
-        this.roomName = "None";
+        this.roomOwnerName = "";
+        this.roomName = "";
     }
 
     public RoomModel(String name, String owner)
@@ -29,5 +29,17 @@ public class RoomModel {
 
     public int getId() {
         return roomId;
+    }
+
+    public void setName(String roomName) {
+        this.roomName = roomName;
+    }
+
+    public void setOwner(String roomOwnerName) {
+        this.roomOwnerName = roomOwnerName;
+    }
+
+    public void setId(int roomId) {
+        this.roomId = roomId;
     }
 }
