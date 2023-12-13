@@ -1,15 +1,15 @@
 package com.example.roomsms.activities;
 
 public class StringIntegerModel {
-    private String string;
+    private String message;
     private int integer;
-    public StringIntegerModel(String string, int integer) {
-        this.integer = integer;
-        this.string = string;
+    public StringIntegerModel(String Message, int Integer) {
+        this.integer = Integer;
+        this.message = Message;
     }
 
     public void setString(String string) {
-        this.string = string;
+        this.message = string;
     }
 
     public void setInteger(int integer) {
@@ -21,6 +21,6 @@ public class StringIntegerModel {
     }
 
     public String getString() {
-        return string;
+        return message;
     }
 }

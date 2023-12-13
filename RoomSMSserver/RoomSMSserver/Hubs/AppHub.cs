@@ -53,20 +53,20 @@ namespace RoomSMSserver.Hubs
             UserCRUD userCRUD = new UserCRUD(dbContext);
             if (email == null || password == null)
             {
-                return new StringIntegerModel() { String = "No", Integer = -1 };
+                return new StringIntegerModel() { message = "No", integer = -1 };
             }
             var foundUser = userCRUD.GetUserByEmail(email);
             if (foundUser == null)
             {
-                return new StringIntegerModel() { String = "No", Integer = -1 }; ;
+                return new StringIntegerModel() { message = "No", integer = -1 };
             }
             var samePassword = _authorization.VerifyHashedPassword(foundUser.Password, password);
             if (!samePassword)
             {
-                return new StringIntegerModel() { String = "No", Integer = -1 }; ;
+                return new StringIntegerModel() { message = "No", integer = -1 };
             }
             await Task.CompletedTask;
-            return new StringIntegerModel() { String = "Ok", Integer = foundUser.Id };
+            return new StringIntegerModel() { message = "Ok", integer = foundUser.Id };
         }
         public async Task<string> GetUsernameById(int id)
         {
@@ -118,18 +118,18 @@ namespace RoomSMSserver.Hubs
             await Task.CompletedTask;
             return roomInfos;
         }
-        public async Task<(string, int)> GetRoomNameAndMembersCount(int roomId)
+        public async Task<StringIntegerModel> GetRoomNameAndMembersCount(int roomId)
         {
             RoomCRUD roomCRUD = new RoomCRUD(dbContext);
             var foundRoom = roomCRUD.GetRoomById(roomId);
             if (foundRoom == null)
             {
-                return ("", 0);
+                return new StringIntegerModel() { message = "", integer = 0 };
             }
             MemberCRUD memberCRUD = new MemberCRUD(dbContext);
             var counter = memberCRUD.CountMembersInRoom(roomId);
             await Task.CompletedTask;
-            return (foundRoom.Name, counter);
+            return new StringIntegerModel() { message = foundRoom.Name, integer = counter };
         }
         public async Task<List<MessageModel>> GetRoomMessages(int roomId)
         {
@@ -158,16 +158,16 @@ namespace RoomSMSserver.Hubs
             var foundUser = userCRUD.GetUserById(idUser);
             if (foundUser == null)
             {
-                return "No";
+                return "User not found";
             }
             var foundRoom = roomCRUD.GetRoomById(idRoom);
             if (foundRoom == null)
             {
-                return "No";
+                return "Room not found";
             }
             if (message == string.Empty)
             {
-                return "No";
+                return "Message is empty";
             }
             var messageToAdd = new RoomMessage
             {

@@ -5,31 +5,32 @@ import java.util.Date;
 
 public class ChatModel {
     private String message;
-    private int senderId;
-    private Date date;
+    private String senderUsername;
+    //private Date sentDate;
+    private String sentDate;
 
     private static final String patternDate = "MM/dd/yyyy - HH:mm";
 
-    public ChatModel(String message, int senderId, Date date) {
+    public ChatModel(String message, String senderName, String date) {
         this.message = message;
-        this.senderId = senderId;
-        this.date = date;
+        this.senderUsername = senderName;
+        this.sentDate = date;
     }
 
     public String getMessage() {
         return message;
     }
 
-    public Date getDate() {
-        return date;
+    public String getDate() {
+        return sentDate;
     }
 
-    public int getSenderId() {
-        return senderId;
+    public String getSenderId() {
+        return senderUsername;
     }
 
-    public String getDateString()
-    {
-        return new SimpleDateFormat(patternDate).format(date);
+    public String getDateString() {
+        return sentDate;
+        //return new SimpleDateFormat(patternDate).format(sentDate);
     }
 }

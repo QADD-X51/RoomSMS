@@ -2,7 +2,8 @@
 {
     public class StringIntegerModel
     {
-        public string String { set; get; }
-        public int Integer { set; get; }
+        public string message { set; get; }
+        public int integer { set; get; }
+
     }
 }

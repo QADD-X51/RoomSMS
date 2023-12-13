@@ -12,7 +12,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.roomsms.R;
-import com.google.gson.Gson;
 import com.microsoft.signalr.HubConnection;
 import com.microsoft.signalr.HubConnectionBuilder;
 
@@ -22,6 +21,8 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import io.reactivex.rxjava3.annotations.NonNull;
 
 public class ActivityLogIn extends AppCompatActivity {
 
@@ -78,15 +79,13 @@ public class ActivityLogIn extends AppCompatActivity {
                         }
 
                         if(hubConnection.isConnected()) {
-                            Object resultObj = hubConnection.getHubConnection().invoke(Object.class,"Login", email, password).blockingGet();
+                            StringIntegerModel result = hubConnection.getHubConnection().invoke(StringIntegerModel.class,"Login", email, password).blockingGet();
 
-                            StringIntegerModel result = new Gson().fromJson(resultObj.toString(), StringIntegerModel.class);
-                            Log.i("Result", result.getString() + " - " + String.valueOf(result.getInteger()));
-
+                            Log.i("Result", result.getString() + " - " + result.getInteger());
 
                             hubConnection.stop();
                             runOnUiThread(() -> {
-                                if(Objects.equals(result.getString(), "No")) {
+                                if(Objects.equals(result.getString(), "No") || result.getString() == null) {
                                     makeToast("Wrong Log In Credentials");
                                     return;
                                 }

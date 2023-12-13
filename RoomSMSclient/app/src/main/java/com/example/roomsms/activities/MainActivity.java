@@ -19,8 +19,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.roomsms.R;
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -133,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         Log.i("Main - onPause", "Paused");
+        handler.removeCallbacks(refreshFunction);
         hubConnection.stop();
     }
 
@@ -214,7 +213,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("Main - Update List", "Rooms got: " + String.valueOf(result.length));
 
                 ArrayList<RoomModel> rooms = new ArrayList<RoomModel>();
-
 
                 for (RoomModel o : result) {
                     Log.i("Main - Update List", "Rooms added: " + o.getName());
