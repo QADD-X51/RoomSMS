@@ -108,13 +108,13 @@ namespace RoomSMSserver.Hubs
         public async Task<List<RoomInfoModel>> GetRoomsWithGivenMember(int memberId)
         {
             UserCRUD userCRUD = new UserCRUD(dbContext);
-            string ownerName = userCRUD.GetUserById(memberId).Username;
             MemberCRUD memberCRUD = new MemberCRUD(dbContext);
             List<int> roomIDs = memberCRUD.GetRoomIDsOfMember(memberId);
             RoomCRUD roomCRUD = new RoomCRUD(dbContext);
             List<RoomInfoModel> roomInfos = roomIDs.Select(foundRoomId =>
-                new RoomInfoModel(foundRoomId, roomCRUD.GetRoomName(foundRoomId), ownerName)).ToList();
-            Console.WriteLine("Room Count: " + roomInfos.Count.ToString());
+                new RoomInfoModel(foundRoomId, roomCRUD.GetRoomName(foundRoomId),
+                    userCRUD.GetUserById(roomCRUD.GetRoomById(foundRoomId).IdOwner).Username)).ToList();
+            //Console.WriteLine("Room Count: " + roomInfos.Count.ToString());
             await Task.CompletedTask;
             return roomInfos;
         }
