@@ -298,18 +298,20 @@ namespace RoomSMSserver.Hubs
                 return "No";
             }
             var foundMember = memberCRUD.GetMemberById(foundMemberId);
-            var updatedMember = new Member
+            if(foundMember.Role == Roles.Owner.ToString())
             {
-                IdRoom = idRoom,
-                IdUser = idUser,
-                Role = Roles.Member.ToString()
-            };
-            if (foundMember.Role == Roles.Member.ToString())
-            {
-                updatedMember.Role = Roles.Admin.ToString();
+                return "No";
             }
+            else if (foundMember.Role == Roles.Member.ToString())
+            {
+                foundMember.Role = Roles.Admin.ToString();
+            }
+            else if(foundMember.Role == Roles.Admin.ToString())
+            {
+                foundMember.Role = Roles.Member.ToString();
+            }
+            memberCRUD.Update(foundMemberId, foundMember);
             await Task.CompletedTask;
-            memberCRUD.Update(foundMemberId, updatedMember);
             return "Ok";
         }
         public async Task<string> GetMemberRole(int idUser, int idRoom)
