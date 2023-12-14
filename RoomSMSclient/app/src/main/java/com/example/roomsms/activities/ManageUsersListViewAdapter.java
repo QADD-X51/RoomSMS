@@ -23,8 +23,8 @@ public class ManageUsersListViewAdapter extends ArrayAdapter<ManageUserModel> {
 
     ArrayList<ManageUserModel> items;
     Context context;
-    String currentUser;
-    public ManageUsersListViewAdapter(Context context, ArrayList<ManageUserModel> items, String currentUser) {
+    int currentUser;
+    public ManageUsersListViewAdapter(Context context, ArrayList<ManageUserModel> items, int currentUser) {
         super(context, R.layout.chat_row, items);
         this.items = items;
         this.context = context;
@@ -52,14 +52,14 @@ public class ManageUsersListViewAdapter extends ArrayAdapter<ManageUserModel> {
             kickButton.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.kick));
 
             if(Objects.equals(items.get(position).getRole(), "Owner") ||
-                    Objects.equals(items.get(position).getUsername(),currentUser))  {
+                    items.get(position).getId() == currentUser)  {
                 changeAdminButton.setImageDrawable(null);
                 kickButton.setImageDrawable(null);
 
                 return convertView;
             }
 
-            if(!Objects.equals(items.get(position).getRole(), "Normal")) {
+            if(!Objects.equals(items.get(position).getRole(), "Member")) {
                 changeAdminButton.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.remove_admin));
 
             }
@@ -67,14 +67,14 @@ public class ManageUsersListViewAdapter extends ArrayAdapter<ManageUserModel> {
             kickButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    showKickDialog();
+                    showKickDialog(items.get(position));
                 }
             });
 
             changeAdminButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    showChangeAdminDialog();
+                    showChangeRoleDialog(items.get(position));;
                 }
             });
 
@@ -91,39 +91,42 @@ public class ManageUsersListViewAdapter extends ArrayAdapter<ManageUserModel> {
         ImageView changeAdminButton = convertView.findViewById(R.id.ChangeAdminButton);
 
         if(Objects.equals(items.get(position).getRole(), "Owner") ||
-                Objects.equals(items.get(position).getUsername(), currentUser)) {
+                items.get(position).getId() == currentUser) {
             changeAdminButton.setImageDrawable(null);
             kickButton.setImageDrawable(null);
 
             return convertView;
         }
 
-        if(!Objects.equals(items.get(position).getRole(), "Normal")) {
+        if(!Objects.equals(items.get(position).getRole(), "Member")) {
             changeAdminButton.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.remove_admin));
         }
 
         kickButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showKickDialog();
+                showKickDialog(items.get(position));
             }
         });
 
         changeAdminButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showChangeAdminDialog();
+                showChangeRoleDialog(items.get(position));
             }
         });
 
         return convertView;
     }
 
-    public void showKickDialog(){
-        Toast.makeText(context, "Kick", Toast.LENGTH_SHORT).show();
+    private void showKickDialog(ManageUserModel username){
+        ((ManageUsersActivity)context).updateRole();
+        ((ManageUsersActivity)context).showKickDialog(username);
     }
 
-    public void showChangeAdminDialog() {
-        Toast.makeText(context, "Admin", Toast.LENGTH_SHORT).show();
+    private void showChangeRoleDialog(ManageUserModel username){
+        ((ManageUsersActivity)context).updateRole();
+        ((ManageUsersActivity)context).showChangeRoleDialog(username);
     }
+
 }

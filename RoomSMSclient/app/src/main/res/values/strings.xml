@@ -17,6 +17,10 @@
     <string name="dialog_add_room_message">Room Name:</string>
     <string name="dialog_change_room_name_title">Change Room Name</string>
     <string name="dialog_change_room_name_message">New Name:</string>
+    <string name="dialog_kick_title">Kick</string>
+    <string name="dialog_kick_message">The user can be reinvited. Are you sure you want to kick </string>
+    <string name="dialog_change_role_title">Change Role</string>
+    <string name="dialog_change_role_message">An admin can kick and change roles to every other member. Are you sure you want to change the role of this user:  </string>
     <string name="change">Change</string>
     <string name="add">Add</string>
     <string name="email">Email</string>

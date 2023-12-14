@@ -29,6 +29,9 @@ import io.reactivex.rxjava3.annotations.NonNull;
 
 public class ChatActivity extends AppCompatActivity {
 
+    Handler refreshTopTabHandler;
+    Runnable refreshTopTabRunnable;
+    final int refreshTopTabDelay = 5 * 1000;
     ListView chatList;
     TextView roomNameLabel;
     TextView membersCountLabel;
@@ -39,9 +42,7 @@ public class ChatActivity extends AppCompatActivity {
     ChatListViewAdapter adapter;
     int userId;
     RoomModel currentRoom;
-    String role;
     HubConnector hubConnection;
-    //ExecutorService service = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +78,7 @@ public class ChatActivity extends AppCompatActivity {
         settingsButton = findViewById(R.id.ChatSettingsButton);
         chatList = findViewById(R.id.ChatList);
 
+        refreshTopTabHandler = new Handler();
         initialElementConnection();
         getAllMessages();
 
@@ -106,6 +108,38 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.i("Chat - onPause", "Paused");
+        refreshTopTabHandler.removeCallbacks(refreshTopTabRunnable);
+        hubConnection.stop();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(!tryToConnect()) goBackToMainActivity();
+
+        refreshTopTabHandler.postDelayed( refreshTopTabRunnable = () -> {
+            Log.i("Chat - Handler", "Called Handler");
+            initialElementConnection();
+            refreshTopTabHandler.postDelayed(refreshTopTabRunnable, refreshTopTabDelay);
+        }, refreshTopTabDelay);
+
+        Log.i("Chat - onResume", "Resumed");
+    }
+
+    private boolean tryToConnect() {
+        if(!hubConnection.start()) {
+            Log.i("Main - onResume", "Connection Failed");
+            makeToast("Lost Connection");
+            return false;
+        }
+        return true;
+    }
+
     private void sendChatMessage(String message) {
         ExecutorService service = Executors.newSingleThreadExecutor();
 
@@ -131,7 +165,6 @@ public class ChatActivity extends AppCompatActivity {
 
         });
         service.shutdown();
-        chatList.setAdapter(adapter);
     }
 
     private void updateChat(int roomId, ChatModel message) {
@@ -151,16 +184,10 @@ public class ChatActivity extends AppCompatActivity {
 
         chatArray.add(message);
         chatList.setAdapter(adapter);
+
     }
 
-    private void openSettingsActivity()
-    {
-        Intent intent = new Intent(this, ChatSettingsActivity.class);
-        intent.putExtra("RoomId", currentRoom.getId());
-        intent.putExtra("Role", role);
-        intent.putExtra("UserId", userId);
-        startActivity(intent);
-    }
+
 
     private void initialElementConnection() {
         ExecutorService service = Executors.newSingleThreadExecutor();
@@ -178,14 +205,15 @@ public class ChatActivity extends AppCompatActivity {
 
             StringIntegerModel result = hubConnection.getHubConnection().invoke(StringIntegerModel.class, "GetRoomNameAndMembersCount", currentRoom.getId()).blockingGet();
 
-            Log.i("Chat - Initial", "Got: " + result.getString() + " | " + String.valueOf(result.getInteger()));
+            Log.i("Chat - Initial", "Got Room: " + result.getString() + " | " + String.valueOf(result.getInteger()));
 
-            if(Objects.equals(result.getString(), "")) {
+            if(Objects.equals(result.getString(), "") || result.getString() == null) {
                 makeToast("The room you are in does not exist anymore.");
                 Log.e("Chat - Initial", "Room Not Found");
                 goBackToMainActivity();
                 return;
             }
+
             currentRoom.setName(result.getString());
             runOnUiThread(() -> {
                 roomNameLabel.setText(currentRoom.getName());
@@ -239,11 +267,18 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void goBackToMainActivity() {
-        Intent intent;
-        intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         hubConnection.stop();
         finish();
+        startActivity(intent);
+    }
+
+    private void openSettingsActivity()
+    {
+        Intent intent = new Intent(this, ChatSettingsActivity.class);
+        intent.putExtra("RoomId", currentRoom.getId());
+        intent.putExtra("UserId", userId);
         startActivity(intent);
     }
 

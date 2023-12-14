@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     Button createRoomButton;
     int userId;
     HubConnector hubConnection;
-
+    boolean initialElementsLoaded;
     Handler handler;
     Runnable refreshFunction;
     final int delay = 30 * 1000; //Delay for 30 seconds.  One second = 1000 milliseconds.
@@ -65,8 +65,6 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
 
-        handler = new Handler();
-
         setContentView(R.layout.activity_main);
 
         roomsList = findViewById(R.id.RoomsList);
@@ -75,9 +73,14 @@ public class MainActivity extends AppCompatActivity {
 
         roomsArray = new ArrayList<RoomModel>();
 
-        this.initialElementConnection();
+        initialElementsLoaded = tryToConnect();
+        handler = new Handler();
 
-        userLabel.setText(String.valueOf(userId));
+        if(initialElementsLoaded) {
+            this.initialElementConnection();
+            this.updateList();
+        }
+
 
         roomsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -89,9 +92,6 @@ public class MainActivity extends AppCompatActivity {
                 openChatActivity(roomsArray.get(i));
             }
         });
-
-
-        this.updateList();
 
         createRoomButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -145,7 +145,11 @@ public class MainActivity extends AppCompatActivity {
             handler.postDelayed(refreshFunction, delay);
         }, delay);
 
-        tryToConnect();
+        if(hubConnection.isDisconnected()) {
+            tryToConnect();
+            refresh();
+        }
+
         Log.i("Main - onResume", "Resumed");
     }
 
@@ -171,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
                 });
                 return;
             }
+            initialElementsLoaded = false;
             Log.e("Main - Initial Element Connection", " Disconnected");
         });
 
@@ -244,6 +249,10 @@ public class MainActivity extends AppCompatActivity {
     private void refresh() {
         if(!tryToConnect()) {
             return;
+        }
+        if(!initialElementsLoaded) {
+            initialElementsLoaded = true;
+            initialElementConnection();
         }
         updateList();
     }
