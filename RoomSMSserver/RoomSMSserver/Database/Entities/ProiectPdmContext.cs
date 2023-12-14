@@ -61,7 +61,7 @@ public partial class ProiectPdmContext : DbContext
         {
             entity.ToTable("RoomMessage");
 
-            entity.Property(e => e.Date).HasColumnType("date");
+            entity.Property(e => e.Date).HasColumnType("datetime");
             entity.Property(e => e.Message).HasMaxLength(500);
 
             entity.HasOne(d => d.IdRoomNavigation).WithMany(p => p.RoomMessages)
