@@ -189,17 +189,17 @@ namespace RoomSMSserver.Hubs
             var foundUser = userCRUD.GetUserById(idUser);
             if (foundUser == null)
             {
-                return "No";
+                return "User does not exist";
             }
             var foundRoom = roomCRUD.GetRoomById(idRoom);
             if (foundRoom == null)
             {
-                return "No";
+                return "Room does not exist";
             }
             var memberId = memberCRUD.GetMemberId(idUser, idRoom);
             if (memberId == -1)
             {
-                return "No";
+                return "Member is not part of the room";
             }
             memberCRUD.ChangeDeletedState(memberId, true);
             await Task.CompletedTask;
@@ -285,22 +285,22 @@ namespace RoomSMSserver.Hubs
             var foundUser = userCRUD.GetUserById(idUser);
             if (foundUser == null)
             {
-                return "No";
+                return "User does not exist";
             }
             var foundRoom = roomCRUD.GetRoomById(idRoom);
             if (foundRoom == null)
             {
-                return "No";
+                return "Room does not exist";
             }
             var foundMemberId = memberCRUD.GetMemberId(foundUser.Id, foundRoom.Id);
             if (foundMemberId == -1)
             {
-                return "No";
+                return "Member is not part of the room";
             }
             var foundMember = memberCRUD.GetMemberById(foundMemberId);
             if(foundMember.Role == Roles.Owner.ToString())
             {
-                return "No";
+                return "Can't change role of an owner";
             }
             else if (foundMember.Role == Roles.Member.ToString())
             {
