@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -24,6 +26,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -151,6 +154,45 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Log.i("Main - onResume", "Resumed");
+    }
+
+    private void resetHandler() {
+        refresh();
+        handler.removeCallbacks(refreshFunction);
+        handler.postDelayed( refreshFunction = () -> {
+            Log.i("Main - Handler", "Called Handler");
+            refresh();
+            handler.postDelayed(refreshFunction, delay);
+        }, delay);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add("Refresh List");
+        menu.add("Logout");
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        if(Objects.equals(menuItem.getTitle(), "Refresh List")) {
+            this.resetHandler();
+            this.makeToast("Refreshed");
+            return true;
+        }
+        if(Objects.equals(menuItem.getTitle(), "Logout")) {
+            this.logOut();
+            this.makeToast("Logged out");
+            return true;
+        }
+        return false;
+    }
+
+    private void logOut() {
+        Intent intent = new Intent(this, ActivityLogIn.class);
+        hubConnection.stop();
+        finish();
+        startActivity(intent);
     }
 
     private void openChatActivity(RoomModel room) {

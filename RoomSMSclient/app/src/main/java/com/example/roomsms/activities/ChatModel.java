@@ -30,7 +30,6 @@ public class ChatModel {
     }
 
     public String getDateString() {
-        return sentDate;
-        //return new SimpleDateFormat(patternDate).format(sentDate);
+        return sentDate.substring(0, 10) + " " + sentDate.substring(11,19);
     }
 }
