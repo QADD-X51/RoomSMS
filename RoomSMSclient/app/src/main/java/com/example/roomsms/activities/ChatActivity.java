@@ -182,9 +182,10 @@ public class ChatActivity extends AppCompatActivity {
             return;
         }
 
-        chatArray.add(message);
-        chatList.setAdapter(adapter);
-
+        runOnUiThread(() -> {
+            chatArray.add(message);
+            chatList.setAdapter(adapter);
+        });
     }
 
 
